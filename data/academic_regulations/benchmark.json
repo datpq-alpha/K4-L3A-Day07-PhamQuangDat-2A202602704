@@ -1,0 +1,38 @@
+[
+  {
+    "id": "Q1",
+    "query": "Tại Trường Y Dược - Đại học Trà Vinh, sinh viên được rút học phần trong thời hạn nào và nếu tự ý bỏ học từ tuần thứ ba thì bị xử lý ra sao?",
+    "gold_answer": "Sinh viên được rút học phần trong vòng hai tuần kể từ đầu học kỳ chính. Từ tuần thứ ba, học phần vẫn được giữ trong phiếu đăng ký; nếu không đi học thì bị xem là tự ý bỏ học và nhận điểm F.",
+    "expected_doc_ids": ["tvu-course-registration"],
+    "answer_terms": ["hai tuần", "tuần thứ ba", "điểm f"]
+  },
+  {
+    "id": "Q2",
+    "query": "Sinh viên Đại học Thủ Dầu Một phải nộp đơn phúc khảo ở đâu, trong bao lâu và phải thực hiện quy định lệ phí như thế nào?",
+    "gold_answer": "Sinh viên nộp đơn BM.01 về bộ môn quản lý đề cương học phần trong vòng bảy ngày từ ngày công bố điểm và phải đóng lệ phí phúc khảo theo quy định.",
+    "expected_doc_ids": ["tdmu-grade-appeal"],
+    "answer_terms": ["bộ môn", "bảy ngày", "lệ phí"],
+    "metadata_filter": {"audience": "student"}
+  },
+  {
+    "id": "Q3",
+    "query": "Sinh viên chương trình tiên tiến TNUT được đăng ký tối thiểu và tối đa bao nhiêu tín chỉ trong học kỳ chính?",
+    "gold_answer": "Với năm học có ba học kỳ chính, giới hạn là 8–16 tín chỉ mỗi kỳ; với năm học có hai học kỳ chính, giới hạn là 10–24 tín chỉ mỗi kỳ.",
+    "expected_doc_ids": ["tnut-advanced-registration"],
+    "answer_terms": ["8 tín chỉ", "16 tín chỉ", "10 tín chỉ", "24 tín chỉ"]
+  },
+  {
+    "id": "Q4",
+    "query": "Ở UFM, khi lập kế hoạch đăng ký học phần, sinh viên cần tìm hiểu những gì và có thể nhờ ai tư vấn?",
+    "gold_answer": "Sinh viên cần tìm hiểu chương trình đào tạo, đề cương học phần, điều kiện đăng ký, kế hoạch đào tạo và thời khóa biểu; kiểm tra kết quả đã học và điều kiện cá nhân; có thể liên hệ cố vấn học tập khi cần tư vấn.",
+    "expected_doc_ids": ["ufm-course-registration"],
+    "answer_terms": ["chương trình", "đề cương", "cố vấn học tập"]
+  },
+  {
+    "id": "Q5",
+    "query": "Các ngưỡng điểm trung bình tích lũy nào khiến sinh viên TVU bị cảnh báo học vụ theo từng năm và số tín chỉ F tồn đọng tối đa là bao nhiêu?",
+    "gold_answer": "Ngưỡng cảnh báo là dưới 1,20 ở năm thứ nhất; dưới 1,40 ở năm thứ hai; dưới 1,60 ở năm thứ ba; dưới 1,80 ở các năm tiếp theo và cuối khóa. Một căn cứ khác là số tín chỉ F tồn đọng vượt quá 24 tín chỉ.",
+    "expected_doc_ids": ["tvu-academic-warning"],
+    "answer_terms": ["1,20", "1,40", "1,60", "1,80", "24 tín chỉ"]
+  }
+]
