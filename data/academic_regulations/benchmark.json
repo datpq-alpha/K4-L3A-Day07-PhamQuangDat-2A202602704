@@ -8,8 +8,8 @@
   },
   {
     "id": "Q2",
-    "query": "Sinh viên Đại học Thủ Dầu Một phải nộp đơn phúc khảo ở đâu, trong bao lâu và phải thực hiện quy định lệ phí như thế nào?",
-    "gold_answer": "Sinh viên nộp đơn BM.01 về bộ môn quản lý đề cương học phần trong vòng bảy ngày từ ngày công bố điểm và phải đóng lệ phí phúc khảo theo quy định.",
+    "query": "Tại Đại học Thủ Dầu Một, khi bắt đầu quy trình phúc khảo bài kiểm tra, cần thực hiện những gì, trong thời hạn bao lâu và xử lý lệ phí ra sao?",
+    "gold_answer": "Người học lập đơn BM.01, nộp về bộ môn quản lý đề cương học phần trong vòng bảy ngày từ ngày công bố điểm và đóng lệ phí phúc khảo theo quy định.",
     "expected_doc_ids": ["tdmu-grade-appeal"],
     "answer_terms": ["bộ môn", "bảy ngày", "lệ phí"],
     "metadata_filter": {"audience": "student"}

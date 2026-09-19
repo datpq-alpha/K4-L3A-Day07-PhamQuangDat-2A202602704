@@ -11,20 +11,20 @@ retrieved_at: 2026-09-19
 document_version: QT/BKTKĐ&ĐBCL/09; ban hành lần 01; ngày hiệu lực không nêu
 ---
 
-# Quy trình phúc khảo bài kiểm tra tại Trường Đại học Thủ Dầu Một
+# Hướng dẫn phúc khảo bài kiểm tra cho sinh viên Trường Đại học Thủ Dầu Một
 
-Quy trình áp dụng cho sinh viên các hệ đào tạo, học viên cao học, đơn vị đào tạo và các đơn vị phối hợp tại Trường Đại học Thủ Dầu Một. Tài liệu tham chiếu Quyết định số 714/QĐ-ĐHTDM ngày 13 tháng 6 năm 2024 về khảo thí và đo lường kết quả học tập.
+Hướng dẫn này tóm tắt các bước người học cần thực hiện khi yêu cầu phúc khảo. Tài liệu tham chiếu Quyết định số 714/QĐ-ĐHTDM ngày 13 tháng 6 năm 2024 về khảo thí và đo lường kết quả học tập.
 
 ## Sinh viên nộp đơn
 
-Sinh viên có yêu cầu phúc khảo phải lập đơn theo biểu mẫu BM.01 và nộp về bộ môn quản lý đề cương học phần trong vòng bảy ngày kể từ ngày công bố điểm kiểm tra. Thư ký hỗ trợ khảo thí tiếp nhận đơn, trình lãnh đạo duyệt; sinh viên đóng lệ phí theo quy định của Ban Tài chính - Kế toán.
+Người học có yêu cầu phúc khảo phải lập đơn theo biểu mẫu BM.01 và nộp về bộ môn quản lý đề cương học phần trong vòng bảy ngày kể từ ngày công bố điểm kiểm tra. Người học phải đóng lệ phí phúc khảo theo quy định của Ban Tài chính - Kế toán.
 
-## Thành lập và tổ chức chấm
+## Theo dõi yêu cầu
 
-Sau khi sinh viên hoàn thành lệ phí, đơn vị đào tạo tổng hợp danh sách, rút bài, kèm đề và đáp án để thành lập tổ chấm. Tổ gồm tổ trưởng là trưởng hoặc phụ trách bộ môn và hai cán bộ cùng chuyên môn, không trùng với người chấm lần đầu. Bài phúc khảo được chấm theo quy trình lần đầu nhưng dùng màu mực khác.
+Sau khi hoàn thành lệ phí, người học chờ đơn vị đào tạo tổ chức chấm và công bố kết quả. Các thao tác tiếp nhận, lập tổ chấm, đối chiếu và lưu hồ sơ thuộc quy trình vận hành dành cho cán bộ.
 
-## Thống nhất kết quả
+## Kết quả phúc khảo
 
-Nếu điểm lần đầu và điểm phúc khảo bằng nhau hoặc lệch không quá 0,5 điểm, điểm phúc khảo là điểm chính thức. Nếu chênh lệch trên 0,5 điểm, cán bộ phúc khảo lập biên bản để tổ trưởng quyết định điểm chính thức. Sau đó đơn vị đào tạo thực hiện điều chỉnh và công bố kết quả.
+Nếu điểm lần đầu và điểm phúc khảo bằng nhau hoặc lệch không quá 0,5 điểm, điểm phúc khảo là điểm chính thức. Nếu chênh lệch trên 0,5 điểm, tổ chấm lập biên bản để thống nhất điểm chính thức. Đơn vị đào tạo điều chỉnh và công bố kết quả cho người học.
 
 > Ghi chú nguồn: Nội dung được nhóm làm sạch và diễn đạt lại từ PDF công khai của trường; trường ngày hiệu lực trong PDF đang để trống nên metadata không tự suy đoán ngày.

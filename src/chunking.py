@@ -134,6 +134,55 @@ class RecursiveChunker:
         return chunks
 
 
+class HeadingSectionChunker:
+    """Split Markdown at headings and preserve section context.
+
+    The document's level-one heading is prepended to every section. When a
+    section is longer than ``chunk_size``, its own heading is also prepended to
+    every recursively split child so later children do not lose their topic.
+    """
+
+    def __init__(self, chunk_size: int = 500) -> None:
+        self.chunk_size = max(1, chunk_size)
+
+    def chunk(self, text: str) -> list[str]:
+        if not text or not text.strip():
+            return []
+
+        sections = [
+            section.strip()
+            for section in re.split(r"(?=^#{1,6}\s)", text, flags=re.MULTILINE)
+            if section.strip()
+        ]
+        chunks: list[str] = []
+        root_heading = ""
+
+        for section in sections:
+            lines = section.splitlines()
+            heading = lines[0].strip() if lines and lines[0].lstrip().startswith("#") else ""
+            body = "\n".join(lines[1:] if heading else lines).strip()
+
+            if heading.startswith("# "):
+                root_heading = heading
+                if not body:
+                    continue
+
+            headings = list(dict.fromkeys(item for item in (root_heading, heading) if item))
+            prefix = "\n".join(headings)
+            combined = f"{prefix}\n\n{body}".strip() if prefix else body
+
+            if len(combined) <= self.chunk_size:
+                chunks.append(combined)
+                continue
+
+            repeated_prefix = f"{prefix}\n\n" if prefix else ""
+            body_limit = max(1, self.chunk_size - len(repeated_prefix))
+            for child in RecursiveChunker(chunk_size=body_limit).chunk(body):
+                chunks.append(f"{repeated_prefix}{child}".strip())
+
+        return chunks
+
+
 def _dot(a: list[float], b: list[float]) -> float:
     return sum(x * y for x, y in zip(a, b))
 

@@ -27,6 +27,7 @@ from src import (  # noqa: E402
     Document,
     EmbeddingStore,
     FixedSizeChunker,
+    HeadingSectionChunker,
     KnowledgeBaseAgent,
     LocalEmbedder,
     RecursiveChunker,
@@ -84,41 +85,6 @@ class LexicalHashEmbedder:
             vector[index] += 1.5 if "_" in feature else 1.0
         magnitude = math.sqrt(sum(value * value for value in vector)) or 1.0
         return [value / magnitude for value in vector]
-
-
-class HeadingSectionChunker:
-    """Split Markdown by heading and recursively split oversized sections."""
-
-    def __init__(self, chunk_size: int = 500) -> None:
-        self.chunk_size = chunk_size
-        self.fallback = RecursiveChunker(chunk_size=chunk_size)
-
-    def chunk(self, text: str) -> list[str]:
-        if not text.strip():
-            return []
-        sections = [part.strip() for part in re.split(r"(?=^#{1,6}\s)", text, flags=re.MULTILINE) if part.strip()]
-        chunks: list[str] = []
-        root_heading = ""
-        for section in sections:
-            lines = section.splitlines()
-            heading = lines[0].strip() if lines and lines[0].lstrip().startswith("#") else ""
-            body = "\n".join(lines[1:] if heading else lines).strip()
-            if heading.startswith("# "):
-                root_heading = heading
-                if not body:
-                    continue
-            headings = [item for item in (root_heading, heading) if item]
-            headings = list(dict.fromkeys(headings))
-            prefix = "\n".join(headings)
-            combined = f"{prefix}\n\n{body}".strip() if prefix else body
-            if len(combined) <= self.chunk_size:
-                chunks.append(combined)
-                continue
-            prefix = f"{prefix}\n\n" if prefix else ""
-            body_limit = max(100, self.chunk_size - len(prefix))
-            for piece in RecursiveChunker(chunk_size=body_limit).chunk(body):
-                chunks.append(f"{prefix}{piece}".strip())
-        return chunks
 
 
 def parse_frontmatter(path: Path) -> tuple[dict[str, str], str]:
@@ -298,7 +264,7 @@ def main() -> int:
     benchmarks = json.loads(BENCHMARK_PATH.read_text(encoding="utf-8"))
     embedding_fn = LocalEmbedder() if args.embedding == "local" else LexicalHashEmbedder()
     strategies = {
-        "member_1_fixed_size": FixedSizeChunker(chunk_size=500, overlap=75),
+        "member_1_fixed_size": FixedSizeChunker(chunk_size=800, overlap=150),
         "member_2_sentence": SentenceChunker(max_sentences_per_chunk=3),
         "member_3_recursive": RecursiveChunker(chunk_size=500),
         "member_4_heading_section": HeadingSectionChunker(chunk_size=500),

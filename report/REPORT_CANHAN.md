@@ -1,7 +1,8 @@
 # Báo Cáo Cá Nhân — Lab 7: Embedding & Vector Store
 
-**Họ tên:** [CẦN ĐIỀN HỌ TÊN]
-**Nhóm:** [CẦN ĐIỀN TÊN NHÓM]
+**Họ tên:** Phạm Quang Đạt
+**Mã sinh viên:** 2A202602704
+**Nhóm:** Magician
 **Ngày:** 19/09/2026
 
 > **Nộp 1 bản / sinh viên.** Phần nhóm (lựa chọn tài liệu, thiết kế chiến lược, bộ câu hỏi đánh giá, demo) nộp chung trong `REPORT_NHOM.md`.
@@ -63,6 +64,10 @@ Số lượng tăng từ 23 lên 25 chunks vì bước dịch cửa sổ giảm 
 ## 2. Hướng tiếp cận của tôi (My Approach) — Cá nhân (10 điểm)
 
 ### Các hàm chia nhỏ (Chunking Functions)
+
+**Chiến lược cá nhân — `FixedSizeChunker`:**
+
+Tôi sử dụng `FixedSizeChunker(chunk_size=800, overlap=150)`. Mỗi cửa sổ chứa tối đa 800 ký tự và cửa sổ kế tiếp dịch 650 ký tự, nhờ đó 150 ký tự ở ranh giới được giữ lại để hạn chế cắt mất ý. Đây là fixed-size thuần: vị trí chia chỉ phụ thuộc số ký tự, không dựa vào câu, heading hoặc section. Cấu hình được chọn sau khi chạy cùng corpus, năm câu hỏi, mô hình embedding và `top_k=3`; so với cấu hình ban đầu `500/75` đạt 4/10, cấu hình `800/150` đạt 7/10.
 
 **`SentenceChunker.chunk`:**
 
@@ -138,23 +143,23 @@ Cặp thư viện đạt 0,916984, cao hơn rõ rệt hai cặp diễn đạt t�
 
 ## 5. Kết quả truy xuất của tôi (Competition Results) — Cá nhân (10 điểm)
 
-Chiến lược cá nhân được chọn là `HeadingSectionChunker(chunk_size=500)`. Heading cấp cao chứa tên trường được gắn lại vào từng section; section vượt giới hạn được chia tiếp bằng `RecursiveChunker`. Benchmark dùng 10 tài liệu, mô hình đa ngữ cục bộ và `top_k=3`.
+Tôi đảm nhận vai trò **Thành viên 1 — Fixed-size chunking** với cấu hình `FixedSizeChunker(chunk_size=800, overlap=150)`. Benchmark dùng 10 tài liệu, mô hình đa ngữ cục bộ `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` và `top_k=3`. Chiến lược tạo 19 chunks, độ dài trung bình 603,74 ký tự.
 
 | # | Câu hỏi (Query) | Top-1 Chunk truy xuất được | Điểm Score | Có liên quan không? | Câu trả lời của Agent |
 |---|-----------------|----------------------------|------------|----------------------|-----------------------|
-| 1 | Thời hạn rút học phần và hậu quả bỏ học từ tuần ba tại TVU | `tvu-course-registration`: rút trong hai tuần, từ tuần ba bỏ học nhận F | 0,824929 | Có | Trả đúng thời hạn hai tuần và hậu quả điểm F |
-| 2 | Nơi nộp, thời hạn và lệ phí phúc khảo tại TDMU | `tdmu-grade-appeal`: BM.01, bộ môn quản lý đề cương, bảy ngày | 0,755277 | Có | Trả đúng nơi nộp, bảy ngày và nghĩa vụ lệ phí |
-| 3 | Giới hạn tín chỉ chương trình tiên tiến TNUT | `tnut-advanced-registration`: 8–16 hoặc 10–24 tín chỉ | 0,751457 | Có | Trả đúng hai trường hợp số học kỳ chính |
-| 4 | Thông tin cần tìm hiểu và người tư vấn đăng ký tại UFM | `ufm-course-registration`: chương trình, đề cương, điều kiện và cố vấn | 0,808949 | Có | Trả đúng danh sách cần kiểm tra và cố vấn học tập |
-| 5 | Ngưỡng cảnh báo tích lũy và tín chỉ F tại TVU | `tvu-academic-warning`: 1,20/1,40/1,60/1,80 và trên 24 tín chỉ F | 0,608530 | Có | Trả đúng các ngưỡng theo năm và tín chỉ F |
+| 1 | Thời hạn rút học phần và hậu quả bỏ học từ tuần ba tại TVU | `tvu-grade-appeal`: nội dung phúc khảo tại TVU | 0,708859 | Không; tài liệu đúng không có trong top-3 | Trả nhầm quy định rút học phần của TNUT, thiếu mốc hai tuần của TVU — 0 điểm |
+| 2 | Quy trình phúc khảo tại TDMU bắt đầu thế nào, thời hạn và lệ phí ra sao (không nêu đối tượng hỏi) | `tdmu-grade-appeal`: hướng dẫn phúc khảo cho người học | 0,653956 | Có | Sau lọc `audience=student`, trả đúng BM.01, bộ môn quản lý đề cương, bảy ngày và lệ phí — 2 điểm |
+| 3 | Giới hạn tín chỉ chương trình tiên tiến TNUT | `tvu-course-registration`: quy định đăng ký tại TVU | 0,665663 | Không ở top-1; `tnut-advanced-registration` ở hạng 2 với 0,647664 | Có tài liệu liên quan trong top-3 nhưng câu trả lời thiếu các mức 8–16 và 10–24 tín chỉ — 1 điểm |
+| 4 | Thông tin cần tìm hiểu và người tư vấn đăng ký tại UFM | `ufm-course-registration`: chuẩn bị đăng ký học phần | 0,754191 | Có | Trả đúng chương trình, đề cương, điều kiện và cố vấn học tập — 2 điểm |
+| 5 | Ngưỡng cảnh báo tích lũy và tín chỉ F tại TVU | `tvu-academic-warning`: cảnh báo và buộc thôi học | 0,612541 | Có | Trả đúng 1,20/1,40/1,60/1,80 và trên 24 tín chỉ F — 2 điểm |
 
-**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** 5 / 5. Cả năm chunk liên quan đều ở top-1 và agent trả lời đủ các ý bắt buộc, tương ứng 10/10 điểm retrieval.
+**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** 4 / 5. Q2, Q4 và Q5 có tài liệu đúng ở top-1 đồng thời agent trả lời đủ ý; Q3 có tài liệu đúng ở hạng 2 nhưng câu trả lời chưa đủ; Q1 không có tài liệu đúng trong top-3. Tổng điểm retrieval là **7/10**.
 
 **Điều hay nhất tôi học được từ thành viên khác / nhóm khác:**
 
-So sánh với ba chiến lược còn lại cho thấy giữ nguyên câu hoặc dùng overlap chưa đủ khi corpus chứa quy định của nhiều trường có từ vựng giống nhau. Fixed-size đạt 4/10, sentence đạt 7/10 và recursive đạt 8/10, trong khi heading/section đạt 10/10. Bài học quan trọng nhất là phải gắn tên tài liệu và tiêu đề mục vào chunk để không mất ngữ cảnh nguồn.
+Tăng cửa sổ và overlap giúp fixed-size cải thiện từ 4/10 ở cấu hình `500/75` lên 7/10 ở cấu hình `800/150`, nhưng không giải quyết triệt để việc mất ngữ cảnh nguồn. Q1 cho thấy chunk chứa quy định rút học phần của TVU không giữ được tín hiệu tên trường đủ mạnh, còn Q3 cho thấy một chunk TVU có từ vựng tương tự có thể vượt chunk TNUT. Khi so sánh, sentence đạt 7/10, recursive đạt 8/10 và heading/section đạt 10/10; vì vậy bài học quan trọng là ranh giới cấu trúc và tên tài liệu có thể hữu ích hơn việc chỉ tăng kích thước hoặc overlap.
 
-Q2 được chạy với `metadata_filter={"audience": "student"}`. Việc lọc trước retrieval loại tài liệu vận hành phúc khảo dành cho staff, tránh trộn thao tác của cán bộ với hướng dẫn dành cho sinh viên.
+Q2 cố ý không nêu người hỏi và được chạy với `metadata_filter={"audience": "student"}`. Ở chiến lược fixed-size, tài liệu staff không lọt vào top-3 không lọc; tuy nhiên khi cả nhóm chạy cùng query, Recursive và Heading/section đều đưa `tdmu-grade-appeal-operations` vào top-3 không lọc và câu trả lời trộn thao tác của cán bộ. Lọc trước retrieval loại tài liệu staff và giữ đúng hướng dẫn dành cho người học.
 
 ---
 
@@ -166,5 +171,5 @@ Q2 được chạy với `metadata_filter={"audience": "student"}`. Việc lọc
 | Hướng tiếp cận của tôi (My Approach) | 10 / 10 |
 | Hoàn thiện code (Core Implementation — tests) | 30 / 30 |
 | Dự đoán độ tương tự (Similarity Predictions) | 5 / 5 |
-| Kết quả truy xuất của tôi (Competition Results) | 10 / 10 |
-| **Tổng phần cá nhân** | **60 / 60** |
+| Kết quả truy xuất của tôi (Competition Results) | 7 / 10 |
+| **Tổng phần cá nhân** | **57 / 60** |

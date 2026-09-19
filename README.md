@@ -207,6 +207,23 @@ PY
 4. **Mỗi thành viên thử chiến lược riêng**: phương pháp chunking, các tham số, cấu trúc metadata
 5. **So sánh kết quả trong nhóm**: chiến lược nào cho việc truy xuất tốt hơn? Tại sao?
 
+### Chạy benchmark chung
+
+Mỗi thành viên dùng cùng `bench.py` và chỉ đổi dòng `CHUNKER = ...` sang chiến lược được phân công. Lệnh mặc định không cần tải model ngoài:
+
+```powershell
+python -X utf8 bench.py --baseline
+```
+
+Để chạy bằng mô hình đa ngữ dùng trong báo cáo:
+
+```powershell
+$env:HF_HUB_OFFLINE = "1"
+.\.venv\Scripts\python.exe -X utf8 bench.py --embedding local
+```
+
+Script chỉ chunk phần thân sau frontmatter, tạo `Document.id` dạng `file#i`, trải metadata vào mọi chunk và in top-3 cho đúng năm câu hỏi trong `data/academic_regulations/benchmark.json`.
+
 ---
 
 ## Cách Tự Đánh Giá Kết Quả Truy Xuất (Retrieval)

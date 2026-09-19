@@ -1,230 +1,141 @@
 # Báo Cáo Nhóm — Lab 7: Embedding & Vector Store
 
-**Nhóm:** [CẦN ĐIỀN TÊN NHÓM]
+**Nhóm:** Magician — K4-L3A
 
-| Vai trò | Họ tên | Mã sinh viên |
-|---|---|---|
-| Thành viên 1 — Fixed-size | [CẦN ĐIỀN] | [CẦN ĐIỀN] |
-| Thành viên 2 — Sentence | [CẦN ĐIỀN] | [CẦN ĐIỀN] |
-| Thành viên 3 — Recursive | [CẦN ĐIỀN] | [CẦN ĐIỀN] |
-| Thành viên 4 — Heading/section | [CẦN ĐIỀN] | [CẦN ĐIỀN] |
+**Thành viên:** Nguyễn Vũ Anh, Phạm Quang Đạt, Nguyễn Thanh Duy, Trương Việt Anh
 
 **Ngày:** 19/09/2026
 
-**Tổng điểm phần nhóm: 40** = Lựa chọn tài liệu (10) + Thiết kế chiến lược (15) + Chất lượng truy xuất (10) + Thuyết trình (5).
+> Báo cáo này tổng hợp kết quả từ bốn báo cáo cá nhân. Bộ benchmark chính thức của nhóm gồm đúng 5 câu hỏi ở Phần 3. Ba thành viên Phạm Quang Đạt, Nguyễn Thanh Duy và Trương Việt Anh đã chạy đúng bộ câu hỏi này. Nguyễn Vũ Anh chạy một phiên bản benchmark sớm hơn trên cùng corpus và cùng các nhóm nghiệp vụ; kết quả đó được dùng như một stress test bổ sung và không được coi là phép so sánh ngang hàng tuyệt đối.
 
----
-
-## 1. Lựa chọn tài liệu (Document Set Quality) — 10 điểm
+## 1. Lựa chọn tài liệu (Document Set Quality) — Nhóm (10 điểm)
 
 ### Chủ đề và lý do chọn
 
-**Chủ đề:** Quy định học vụ đại học: đăng ký/rút học phần, cảnh báo học vụ, đánh giá và phúc khảo.
+**Chủ đề:** Quy định và dịch vụ đào tạo đại học, tập trung vào đăng ký/rút học phần, phúc khảo, đánh giá và cảnh báo học vụ.
 
-Nhóm chọn chủ đề này vì các quy định có nhiều con số, thời hạn và điều kiện cần được truy xuất chính xác. Các trường thường dùng từ vựng gần giống nhau nhưng quy định khác nhau, vì vậy đây là corpus phù hợp để quan sát ảnh hưởng của chunking, tiêu đề và metadata đến retrieval.
+Đây là miền dữ liệu phù hợp cho RAG vì câu trả lời phải chính xác về trường áp dụng, đối tượng, mốc thời gian, số tín chỉ và ngưỡng điểm. Các tài liệu có cấu trúc điều khoản/heading tương đối rõ, đồng thời có nội dung gần nhau nhưng khác `audience`, tạo điều kiện đánh giá metadata filtering.
 
 ### Danh sách tài liệu
 
-Corpus gồm 10 file đã làm sạch trong `data/academic_regulations/`.
+Số ký tự dưới đây được tính trên phần nội dung Markdown sau khi bỏ YAML frontmatter.
 
-| # | Tài liệu | Trường/nguồn | Phiên bản | Ký tự | Metadata chính |
+| # | Tài liệu | Nguồn công khai | Phiên bản / ngày lấy | Ký tự | Metadata chính |
 |---|---|---|---|---:|---|
-| 1 | `tvu-course-registration` | [TVU — Sổ tay sinh viên](https://cmp.tvu.edu.vn/so-tay-sinh-vien/) | Sổ tay 2026 | 1.761 | student, registration |
-| 2 | `tvu-academic-warning` | [TVU — Sổ tay sinh viên](https://cmp.tvu.edu.vn/so-tay-sinh-vien/) | Sổ tay 2026 | 1.395 | student, academic-warning |
-| 3 | `tvu-grade-appeal` | [TVU — Sổ tay sinh viên](https://cmp.tvu.edu.vn/so-tay-sinh-vien/) | Sổ tay 2026 | 1.287 | student, grade-appeal |
-| 4 | `qtu-academic-affairs-overview` | [QTU — Quy định công tác học vụ](https://qtu.edu.vn/qd-95-ban-hanh-quy-dinh-ve-cong-tac-hoc-vu-tai-truong-dai-hoc-quang-trung/) | 95/QĐ-ĐHQT, 24/06/2021 | 1.249 | all, academic-policy |
-| 5 | `tdmu-grade-appeal` | [TDMU — PDF phúc khảo](https://tdmu.edu.vn/hinh/thuvien/taptin/2-6-2025-4-42-24-pm06-BKTKDDBCL-QT.09-Phuc%20khao%20Bai%20KTr.pdf) | QT/BKTKĐ&ĐBCL/09, lần 01 | 1.893 | student, grade-appeal |
-| 6 | `tdmu-grade-appeal-operations` | Cùng PDF TDMU, tách theo đối tượng | QT/BKTKĐ&ĐBCL/09, lần 01 | 1.653 | staff, grade-appeal |
-| 7 | `tnut-advanced-registration` | [TNUT — Quy chế CTTT](https://fit.tnut.edu.vn/bai-viet/quy-che-dao-tao-trinh-do-dai-hoc-cho-chuong-trinh-tien-tien-nam-2022-176) | 3571/QĐ-ĐHKTCN, 14/12/2022 | 1.309 | student, registration |
-| 8 | `tnut-advanced-withdrawal-assessment` | Cùng quy chế TNUT | 3571/QĐ-ĐHKTCN, 14/12/2022 | 1.384 | student, withdrawal-and-assessment |
-| 9 | `ufm-course-registration` | [UFM — Quy chế tín chỉ](https://pdt.ufm.edu.vn/dulieu/quiche/1329_Quy_che_dao_tao_tin_chi_tu_khoa_2021.htm) | 1329/QĐ-ĐHTCM, 16/07/2021 | 1.509 | student, registration |
-| 10 | `ufm-assessment` | Cùng quy chế UFM | 1329/QĐ-ĐHTCM, 16/07/2021 | 1.096 | student, assessment |
+| 1 | `tvu-course-registration.md` | [Sổ tay SV TVU](https://cmp.tvu.edu.vn/so-tay-sinh-vien/) | Sổ tay SV 2026 / 19-09-2026 | 1.380 | `audience=student`, `category=registration`, `institution=Tra Vinh University` |
+| 2 | `tvu-academic-warning.md` | [Sổ tay SV TVU](https://cmp.tvu.edu.vn/so-tay-sinh-vien/) | Sổ tay SV 2026 / 19-09-2026 | 1.004 | `audience=student`, `category=academic-warning`, `institution=Tra Vinh University` |
+| 3 | `tvu-grade-appeal.md` | [Sổ tay SV TVU](https://cmp.tvu.edu.vn/so-tay-sinh-vien/) | Sổ tay SV 2026 / 19-09-2026 | 905 | `audience=student`, `category=grade-appeal`, `institution=Tra Vinh University` |
+| 4 | `qtu-academic-affairs-overview.md` | [QTU — QĐ 95](https://qtu.edu.vn/qd-95-ban-hanh-quy-dinh-ve-cong-tac-hoc-vu-tai-truong-dai-hoc-quang-trung/) | 95/QĐ-ĐHQT / 19-09-2026 | 836 | `audience=all`, `category=academic-policy`, `institution=Quang Trung University` |
+| 5 | `tdmu-grade-appeal.md` | [TDMU — QT.09](https://tdmu.edu.vn/hinh/thuvien/taptin/2-6-2025-4-42-24-pm06-BKTKDDBCL-QT.09-Phuc%20khao%20Bai%20KTr.pdf) | QT.09 Lần 01 / 19-09-2026 | 1.434 | `audience=student`, `category=grade-appeal`, `institution=Thu Dau Mot University` |
+| 6 | `tdmu-grade-appeal-operations.md` | [TDMU — QT.09](https://tdmu.edu.vn/hinh/thuvien/taptin/2-6-2025-4-42-24-pm06-BKTKDDBCL-QT.09-Phuc%20khao%20Bai%20KTr.pdf) | QT.09 Lần 01 / 19-09-2026 | 1.194 | `audience=staff`, `category=grade-appeal`, `institution=Thu Dau Mot University` |
+| 7 | `tnut-advanced-registration.md` | [TNUT — QĐ 3571](https://fit.tnut.edu.vn/bai-viet/quy-che-dao-tao-trinh-do-dai-hoc-cho-chuong-trinh-tien-tien-nam-2022-176) | 3571/QĐ-ĐHKTCN / 19-09-2026 | 883 | `audience=student`, `category=registration`, `institution=Thai Nguyen University of Technology` |
+| 8 | `tnut-advanced-withdrawal-assessment.md` | [TNUT — QĐ 3571](https://fit.tnut.edu.vn/bai-viet/quy-che-dao-tao-trinh-do-dai-hoc-cho-chuong-trinh-tien-tien-nam-2022-176) | 3571/QĐ-ĐHKTCN / 19-09-2026 | 928 | `audience=student`, `category=withdrawal-and-assessment`, `institution=Thai Nguyen University of Technology` |
+| 9 | `ufm-course-registration.md` | [UFM — QĐ 1329](https://pdt.ufm.edu.vn/dulieu/quiche/1329_Quy_che_dao_tao_tin_chi_tu_khoa_2021.htm) | 1329/QĐ-ĐHTCM / 19-09-2026 | 1.104 | `audience=student`, `category=registration`, `institution=University of Finance - Marketing` |
+| 10 | `ufm-assessment.md` | [UFM — QĐ 1329](https://pdt.ufm.edu.vn/dulieu/quiche/1329_Quy_che_dao_tao_tin_chi_tu_khoa_2021.htm) | 1329/QĐ-ĐHTCM / 19-09-2026 | 695 | `audience=student`, `category=assessment`, `institution=University of Finance - Marketing` |
 
-File kiểm kê nguồn: `data/academic_regulations/sources.csv`.
+Tất cả tài liệu đều có `source_url`, `retrieved_at`, `document_version`, `audience`, `department`, `category` và `language`. Nguồn đều công khai; corpus không chứa mật khẩu, dữ liệu cá nhân hoặc tài liệu nội bộ.
 
-### Quản trị dữ liệu
+### Metadata schema
 
-- [x] Chỉ dùng URL công khai thuộc tên miền chính thức của trường.
-- [x] Không thu thập dữ liệu cá nhân, thông tin đăng nhập hoặc nội dung sau đăng nhập.
-- [x] Mỗi file có `doc_id`, `title`, `source_url`, `retrieved_at`, `document_version`, `audience`.
-- [x] Corpus có ba audience: `student`, `staff`, `all`.
-- [x] Nội dung được làm sạch, chỉ giữ điều khoản cần thiết và không tự bổ sung quy định.
-- [x] PDF “Sổ tay Cố vấn học tập UFM 2018” không được đưa vào corpus vì trang đầu ghi “LƯU HÀNH NỘI BỘ”.
+| Trường | Ví dụ | Mục đích truy xuất |
+|---|---|---|
+| `doc_id` | `tdmu-grade-appeal` | Định danh tài liệu và liên kết các chunk cùng nguồn. |
+| `audience` | `student`, `staff`, `all` | Lọc đúng đối tượng áp dụng trước khi xếp hạng. |
+| `department` | `academic-affairs` | Phân biệt đơn vị/nghiệp vụ phụ trách. |
+| `category` | `registration`, `grade-appeal` | Giảm nhiễu giữa các loại quy định. |
+| `institution` | `Tra Vinh University` | Phân biệt quy định có từ khóa giống nhau giữa các trường. |
+| `language` | `vi` | Hỗ trợ lựa chọn mô hình embedding phù hợp. |
+| `document_version` | `QT/BKTKĐ&ĐBCL/09` | Kiểm tra phiên bản và hiệu lực văn bản. |
+| `source_url`, `retrieved_at` | URL, `2026-09-19` | Truy vết nguồn và độ mới dữ liệu. |
 
-**Lưu ý chất lượng nguồn:** Trang Sổ tay TVU có các liên kết spam bất thường ở phần đầu. Nhóm chỉ trích phần Sổ tay sinh viên 2026, loại toàn bộ menu/liên kết nhiễu và cần kiểm tra lại nguồn trước ngày nộp.
+## 2. Thiết kế chiến lược (Strategy Design) — Nhóm (15 điểm)
 
-### Cấu trúc metadata
+### Baseline
 
-| Trường | Kiểu | Ví dụ | Tác dụng |
-|---|---|---|---|
-| `doc_id` | string | `tdmu-grade-appeal` | Liên kết chunk với tài liệu gốc |
-| `title` | string | Quy trình phúc khảo… | Truy vết và giữ ngữ cảnh |
-| `audience` | enum | student / staff / all | Loại quy trình dành cho sai đối tượng |
-| `institution` | string | Thu Dau Mot University | Phân biệt quy định giữa các trường |
-| `department` | string | academic-affairs | Lọc theo đơn vị phụ trách |
-| `category` | string | grade-appeal | Lọc theo nghiệp vụ |
-| `language` | string | vi | Chọn embedding/ngôn ngữ |
-| `source_url` | URL | URL văn bản gốc | Truy vết nguồn |
-| `retrieved_at` | date | 2026-09-19 | Kiểm soát độ mới |
-| `document_version` | string | 3571/QĐ… | Kiểm soát hiệu lực |
-| `chunk_index` | integer | 2 | Xác định vị trí chunk |
-| `chunk_strategy` | string | heading_section | Tái lập thí nghiệm |
+Nhóm chạy `ChunkingStrategyComparator().compare(chunk_size=200)` trên ba tài liệu sau khi bỏ YAML frontmatter:
 
----
-
-## 2. Thiết kế chiến lược (Strategy Design) — 15 điểm
-
-### Thiết lập chung
-
-- Corpus: cùng 10 tài liệu.
-- Embedding: `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`, vector 384 chiều.
-- Top-k: 3.
-- Cùng năm query và gold answer.
-- Agent: extractive answerer không dùng API, chỉ chọn câu từ context và gắn citation `[1]`, `[2]`.
-- Chỉ thay đổi chunker và tham số chunking.
-
-Lệnh tái lập:
-
-```powershell
-$env:HF_HUB_OFFLINE = "1"
-.\.venv\Scripts\python.exe -X utf8 scripts\benchmark_academic_regulations.py --embedding local
-```
-
-### Phân tích baseline trên ba tài liệu
-
-Tham số `chunk_size=500`; bảng ghi “số chunk / độ dài trung bình”.
-
-| Tài liệu | Fixed-size | Sentence | Recursive |
+| Tài liệu | Fixed-size (số chunk / TB ký tự) | Sentence (số chunk / TB ký tự) | Recursive (số chunk / TB ký tự) |
 |---|---:|---:|---:|
-| TVU — đăng ký/rút học phần | 3 / 493,33 | 4 / 343,25 | 4 / 343,50 |
-| TDMU — phúc khảo | 4 / 396,00 | 4 / 356,75 | 4 / 357,00 |
-| TNUT — đăng ký CTTT | 2 / 466,50 | 3 / 293,00 | 2 / 440,50 |
+| `tdmu-grade-appeal.md` | 10 / 188,40 | 4 / 356,75 | 10 / 141,60 |
+| `tnut-advanced-registration.md` | 6 / 188,83 | 3 / 293,00 | 7 / 124,43 |
+| `tvu-course-registration.md` | 9 / 197,78 | 4 / 343,25 | 10 / 136,20 |
 
-Fixed-size tạo ít chunk và chunk dài hơn nhưng có thể cắt mất heading hoặc tên trường. Sentence giữ câu trọn vẹn nhưng độ dài không đồng đều. Recursive ưu tiên ranh giới đoạn/câu và tạo độ dài cân bằng hơn.
+Fixed-size tạo các cửa sổ đồng đều nhưng có thể cắt ngang câu. Sentence giữ nguyên câu nhưng có thể tách hai câu liên quan sang hai chunk. Recursive tôn trọng ranh giới đoạn/câu hơn fixed-size, nhưng nếu không gắn lại heading thì chunk có thể mất tên trường hoặc tên mục.
 
-### Chiến lược của bốn thành viên
+### Chiến lược của từng thành viên
 
-**Thành viên 1 — [CẦN ĐIỀN]**
+| Thành viên | Chiến lược | Cấu hình / quy mô | Embedding dùng khi benchmark | Lý do và đánh đổi |
+|---|---|---|---|---|
+| Nguyễn Vũ Anh | `HeadingRecursiveChunker` có **Preamble Context Merging** | Tách theo heading, gộp phần mở đầu/tiêu đề vào section đầu rồi recursive; báo cáo cá nhân không ghi tổng số chunk/TB ký tự | `semantic_hash_embed`, 128 chiều, unigram + bigram | Giữ tên trường, đề mục và số liệu trong cùng chunk; khắc phục lỗi phần mở đầu chiếm top-1 còn section chứa đáp án bị đẩy xuống sau. |
+| Phạm Quang Đạt | `FixedSizeChunker` | `chunk_size=800`, `overlap=150`; 19 chunks; TB 616,47 ký tự | `paraphrase-multilingual-MiniLM-L12-v2` | Đơn giản, overlap giảm mất ngữ cảnh biên; vẫn dễ lẫn trường và cắt sai đơn vị ngữ nghĩa. |
+| Nguyễn Thanh Duy | `SentenceChunker` | `max_sentences_per_chunk=3`; 32 chunks; TB 322,28 ký tự | Không nêu tên backend trong báo cáo cá nhân | Không cắt gãy câu; Q2 cho thấy câu về lệ phí có thể bị đẩy sang chunk kế tiếp. |
+| Trương Việt Anh | `HeadingSectionChunker` | `chunk_size=500`; 34 chunks; TB 352,21 ký tự | `VietnameseLexicalEmbedder`, unigram + bigram + trigram | Gắn heading cấp cao vào từng section và recursive section dài; phù hợp corpus Markdown nhưng phụ thuộc heading được chuẩn hóa. |
 
-- Chiến lược: `FixedSizeChunker(chunk_size=500, overlap=75)`.
-- Lý do: baseline đơn giản, có overlap để giảm mất thông tin tại ranh giới.
-- Toàn corpus: 28 chunks, trung bình 418,32 ký tự.
+### Kết quả và so sánh giữa các chiến lược
 
-**Thành viên 2 — [CẦN ĐIỀN]**
+| Thành viên / chiến lược | Kết quả được báo cáo | Điểm mạnh quan sát được | Failure case / hạn chế |
+|---|---:|---|---|
+| Phạm Quang Đạt — Fixed-size | 4/5 có tài liệu đúng trong top-3; **7/10** | Cấu hình 800/150 tốt hơn baseline 500/75 (4/10). | Q1 không có tài liệu TVU đúng trong top-3; Q3 đúng tài liệu ở hạng 2 nhưng câu trả lời thiếu mốc tín chỉ. |
+| Nguyễn Thanh Duy — Sentence | 5/5 tài liệu đúng ở top-1; **9/10 theo rubric nghiêm ngặt** | Bảo toàn câu; Q1, Q3–Q5 có đủ bằng chứng. | Q2 lấy đúng nơi nộp và 7 ngày nhưng câu trả lời thiếu chi tiết lệ phí, nên tính 1/2 cho câu này. |
+| Trương Việt Anh — Heading/section | 5/5 ở mức tài liệu và nội dung; **10/10** | Heading giữ tín hiệu tên trường/chủ đề; toàn bộ answer terms nằm trong top-3. | Lexical embedding còn yếu với câu diễn đạt lại bằng từ đồng nghĩa. |
+| Nguyễn Vũ Anh — Heading/recursive + preamble merging *(stress test trên bộ câu hỏi sớm)* | 5/5 top-1 ở cả mức `doc_id` và nội dung; **10/10 nghiêm ngặt** | Sau tối ưu, cả 5 chunk top-1 đều chứa đầy đủ dữ liệu trả lời; preamble không còn tách thành chunk gây nhiễu. | Kết quả không so sánh trực tiếp với ba dòng trên vì câu hỏi và backend khác; báo cáo không cung cấp tổng số chunk/TB ký tự. |
 
-- Chiến lược: `SentenceChunker(max_sentences_per_chunk=3)`.
-- Lý do: điều khoản thường được diễn đạt bằng một đến ba câu liên tiếp; giữ nguyên dấu câu giúp answerer trích xuất dễ hơn.
-- Toàn corpus: 32 chunks, trung bình 322,28 ký tự.
+Các con số cho thấy heading-aware phù hợp nhất với corpus này. `HeadingSectionChunker` đạt 10/10 trên bộ benchmark chung; `HeadingRecursiveChunker` có Preamble Context Merging cũng đạt 10/10 trên stress test riêng. Tuy nhiên, đây chưa phải thí nghiệm cô lập hoàn toàn tác động của chunking vì các thành viên dùng embedding backend khác nhau. Kết luận chắc chắn nhất là: cấu trúc heading và việc giữ preamble giúp bảo toàn ngữ cảnh nguồn; còn điểm số tuyệt đối phụ thuộc đồng thời vào chunker, embedding, query wording và cách chấm nội dung.
 
-**Thành viên 3 — [CẦN ĐIỀN]**
+## 3. Câu hỏi đánh giá và chất lượng truy xuất — Nhóm (10 điểm)
 
-- Chiến lược: `RecursiveChunker(chunk_size=500)`.
-- Lý do: ưu tiên đoạn, dòng, câu và từ; chỉ cắt sâu hơn khi đoạn vượt ngưỡng.
-- Toàn corpus: 30 chunks, trung bình 344,10 ký tự.
+### Bộ 5 câu hỏi benchmark chính thức
 
-**Thành viên 4 — [CẦN ĐIỀN]**
-
-- Chiến lược: `HeadingSectionChunker(chunk_size=500)`.
-- Lý do: mỗi điều/mục trong quy định là một đơn vị ngữ nghĩa. Heading cấp cao được gắn lại vào mọi section; section dài được đưa qua recursive chunker.
-- Toàn corpus: 34 chunks, trung bình 352,21 ký tự.
-- Code nằm trong `scripts/benchmark_academic_regulations.py`.
-
-### So sánh giữa các thành viên
-
-| Thành viên | Chiến lược | Điểm retrieval | Điểm mạnh | Điểm yếu |
-|---|---|---:|---|---|
-| 1 | Fixed-size | 4/10 | Ít chunk, tốc độ tốt, có overlap | Cắt mất quan hệ giữa tên trường và điều khoản |
-| 2 | Sentence | 7/10 | Câu hoàn chỉnh, dễ đọc và trích xuất | Có thể tách heading khỏi câu; Q1 thất bại top-3 |
-| 3 | Recursive | 8/10 | Cân bằng kích thước và ranh giới tự nhiên | Q1 thất bại; Q3 đúng nhưng ở rank thấp hơn heading |
-| 4 | Heading/section | **10/10** | Giữ tên trường và tiêu đề trong từng chunk; cả 5 câu đúng top-1 | Nhiều chunk hơn, cần xử lý section dài |
-
-**Chiến lược tốt nhất:** Heading/section. Corpus gồm quy định của nhiều trường có từ vựng rất giống nhau; việc gắn tên tài liệu và heading vào từng section giúp model phân biệt trường, nghiệp vụ và điều kiện cụ thể. Đây là nguyên nhân chiến lược này đạt 10/10 trong khi fixed-size chỉ đạt 4/10.
-
----
-
-## 3. Câu hỏi đánh giá và chất lượng truy xuất — 10 điểm
-
-### Năm câu hỏi và gold answer
-
-| # | Query | Gold answer | Chunk chuẩn |
+| # | Câu hỏi benchmark | Gold answer | Chunk chứa thông tin |
 |---|---|---|---|
-| Q1 | Tại Trường Y Dược - Đại học Trà Vinh, sinh viên được rút học phần trong thời hạn nào và nếu tự ý bỏ học từ tuần thứ ba thì bị xử lý ra sao? | Được rút trong hai tuần từ đầu học kỳ chính; từ tuần ba, không đi học bị xem là tự ý bỏ học và nhận F. | `tvu-course-registration` |
-| Q2 | Sinh viên Đại học Thủ Dầu Một phải nộp đơn phúc khảo ở đâu, trong bao lâu và phải thực hiện quy định lệ phí như thế nào? | Nộp BM.01 về bộ môn quản lý đề cương trong bảy ngày từ ngày công bố điểm và đóng lệ phí theo quy định. | `tdmu-grade-appeal` |
-| Q3 | Sinh viên chương trình tiên tiến TNUT được đăng ký tối thiểu và tối đa bao nhiêu tín chỉ trong học kỳ chính? | Năm có ba kỳ chính: 8–16 tín chỉ/kỳ; năm có hai kỳ chính: 10–24 tín chỉ/kỳ. | `tnut-advanced-registration` |
-| Q4 | Ở UFM, khi lập kế hoạch đăng ký học phần, sinh viên cần tìm hiểu những gì và có thể nhờ ai tư vấn? | Tìm hiểu chương trình, đề cương, điều kiện đăng ký, kế hoạch, thời khóa biểu; kiểm tra kết quả/điều kiện cá nhân và có thể hỏi cố vấn học tập. | `ufm-course-registration` |
-| Q5 | Các ngưỡng điểm trung bình tích lũy nào khiến sinh viên TVU bị cảnh báo theo từng năm và số tín chỉ F tồn đọng tối đa là bao nhiêu? | Dưới 1,20; 1,40; 1,60; 1,80 tương ứng các năm; cảnh báo khi tín chỉ F tồn đọng vượt 24. | `tvu-academic-warning` |
+| 1 | Tại Trường Y Dược - Đại học Trà Vinh, sinh viên được rút học phần trong thời hạn nào và nếu tự ý bỏ học từ tuần thứ ba thì bị xử lý ra sao? | Được rút trong hai tuần đầu học kỳ chính; từ tuần thứ ba, tự ý bỏ học bị nhận điểm F. | `tvu-course-registration#2` |
+| 2 | Sinh viên Đại học Thủ Dầu Một phải nộp đơn phúc khảo ở đâu, trong bao lâu và phải thực hiện quy định lệ phí như thế nào? | Nộp BM.01 về bộ môn quản lý đề cương trong bảy ngày kể từ ngày công bố điểm và đóng lệ phí theo quy định. | `tdmu-grade-appeal#1`; dùng `metadata_filter={"audience": "student"}` |
+| 3 | Sinh viên chương trình tiên tiến TNUT được đăng ký tối thiểu và tối đa bao nhiêu tín chỉ trong học kỳ chính? | Năm có ba học kỳ chính: 8–16 tín chỉ/kỳ; năm có hai học kỳ chính: 10–24 tín chỉ/kỳ. | `tnut-advanced-registration#1` |
+| 4 | Ở UFM, khi lập kế hoạch đăng ký học phần, sinh viên cần tìm hiểu những gì và có thể nhờ ai tư vấn? | Tìm hiểu chương trình, đề cương, điều kiện đăng ký, kế hoạch đào tạo, thời khóa biểu và có thể nhờ cố vấn học tập. | `ufm-course-registration#1` |
+| 5 | Các ngưỡng điểm trung bình tích lũy nào khiến sinh viên TVU bị cảnh báo học vụ theo từng năm và số tín chỉ F tồn đọng tối đa là bao nhiêu? | Dưới 1,20; 1,40; 1,60; 1,80 theo từng năm tương ứng; hoặc tín chỉ F tồn đọng vượt 24. | `tvu-academic-warning#1` |
 
-Q2 sử dụng:
+Các câu hỏi bao phủ nhiều dạng thông tin: thời hạn và chế tài, quy trình kèm metadata filter, khoảng số tín chỉ, danh sách điều kiện/tư vấn và bảng ngưỡng điểm theo năm.
 
-```python
-metadata_filter={"audience": "student"}
-```
-
-TDMU có hai tài liệu cùng nghiệp vụ: hướng dẫn sinh viên và quy trình vận hành cho staff. Trong kết quả không lọc của sentence/recursive/heading, chunk `tdmu-grade-appeal-operations` xuất hiện trong top-3; lọc trước retrieval loại chunk này.
-
-### Kết quả semantic benchmark
+### Kết quả tổng hợp
 
 | Chiến lược | Q1 | Q2 | Q3 | Q4 | Q5 | Tổng |
 |---|---:|---:|---:|---:|---:|---:|
-| Fixed-size | 0 | 2 | 1 | 1 | 0 | **4/10** |
-| Sentence | 0 | 2 | 1 | 2 | 2 | **7/10** |
-| Recursive | 0 | 2 | 2 | 2 | 2 | **8/10** |
-| Heading/section | 2 | 2 | 2 | 2 | 2 | **10/10** |
+| Fixed-size 800/150 | 0/2 | 2/2 | 1/2 | 2/2 | 2/2 | **7/10** |
+| Sentence, 3 câu/chunk | 2/2 | 1/2 | 2/2 | 2/2 | 2/2 | **9/10** |
+| Heading/section 500 | 2/2 | 2/2 | 2/2 | 2/2 | 2/2 | **10/10** |
 
-### Top-1 của chiến lược tốt nhất
+`HeadingSectionChunker` đạt kết quả tốt nhất trên bộ benchmark chung vì giữ heading trong từng chunk và chỉ dùng recursive fallback khi section vượt giới hạn. `SentenceChunker` lấy đúng tài liệu ở cả 5 câu nhưng Q2 thiếu một chi tiết nằm ở câu kế tiếp. Fixed-size cải thiện khi tăng cửa sổ và overlap, song vẫn bị nhiễu bởi tài liệu có từ vựng tương tự.
 
-| Query | Top-1 doc | Score | Chunk đúng? | Agent đúng? |
-|---|---|---:|---|---|
-| Q1 | `tvu-course-registration` | 0,824929 | Có | Có |
-| Q2 | `tdmu-grade-appeal` | 0,755277 | Có | Có |
-| Q3 | `tnut-advanced-registration` | 0,751457 | Có | Có |
-| Q4 | `ufm-course-registration` | 0,808949 | Có | Có |
-| Q5 | `tvu-academic-warning` | 0,608530 | Có | Có |
+### Thử nghiệm metadata filtering
 
-**Bao nhiêu câu có chunk liên quan trong top-3?** 5/5 với heading/section.
+Q2 bắt buộc dùng `metadata_filter={"audience": "student"}`. Pre-filter loại `tdmu-grade-appeal-operations.md` (`audience=staff`) trước khi tính similarity, nhờ đó agent không trộn thao tác nội bộ của cán bộ với hướng dẫn dành cho sinh viên.
 
-**Bao nhiêu câu có chunk liên quan ở top-1 và câu trả lời đủ ý?** 5/5.
+Trong phép thử A/B của Trương Việt Anh, cả khi có và không có filter, `tdmu-grade-appeal` vẫn ở top-1 và đạt 2/2 vì câu hỏi đã chứa các từ phân biệt mạnh như “sinh viên” và “nộp đơn”. Kết quả này cho thấy filter là guardrail đúng đối tượng và đáp ứng yêu cầu L3A, nhưng không phải truy vấn nào cũng làm thay đổi thứ hạng quan sát được.
 
-### Phân tích lỗi
+### Phân tích lỗi chung
 
-Failure case rõ nhất là Q1. Fixed-size, sentence và recursive không đưa `tvu-course-registration` vào top-3 khi dùng semantic embedding. Các chunk nói về rút học phần của TVU bị tách khỏi heading chứa tên trường; model ưu tiên các chunk TNUT/TVU khác có từ khóa gần giống. Heading chunker gắn lại tiêu đề trường và mục “Rút bớt học phần”, đưa đúng chunk lên top-1 với score 0,824929.
+1. **Fixed-size — Q1:** Chunk TVU đúng không vào top-3 vì ranh giới ký tự làm yếu tín hiệu tên trường và hành vi rút học phần. Tăng overlap giúp nhưng không giải quyết hoàn toàn việc cắt sai đơn vị ngữ nghĩa.
+2. **Sentence — Q2:** Nơi nộp và thời hạn nằm trong chunk đầu, còn chi tiết lệ phí sang chunk tiếp theo. Có thể dùng sentence overlap hoặc gom theo heading.
+3. **Heading/recursive — lỗi ban đầu và tối ưu:** Phần mở đầu từng chiếm top-1 nhờ lặp từ khóa, trong khi section chứa bảng ngưỡng điểm bị đẩy xuống sau. Preamble Context Merging đã gộp tên trường/tiêu đề vào section đầu, đưa cả 5 chunk chứa đáp án lên top-1 và tăng kết quả nghiêm ngặt từ 7/10 lên 10/10 trên stress test của Nguyễn Vũ Anh.
+4. **Embedding:** `MockEmbedder` cho kết quả gần ngẫu nhiên; lexical hashing tốt với từ khóa/số liệu chính xác nhưng yếu với paraphrase và phủ định. Hướng cải thiện là multilingual neural embedding hoặc hybrid dense + lexical retrieval.
 
-Q3 cho thấy fixed-size và sentence vẫn tìm được tài liệu TNUT nhưng ở rank 2 vì một chunk TVU về đăng ký tín chỉ cạnh tranh mạnh. Heading/section giữ cụm “chương trình tiên tiến TNUT” cùng giới hạn tín chỉ, nên đạt top-1.
+## 4. Demo và bài học nhóm — Nhóm (5 điểm)
 
----
+Demo sử dụng cùng corpus và hiển thị top-3 cho từng truy vấn, kèm `doc_id`, score, metadata và đoạn nội dung. Nhóm rút ra bốn kết luận:
 
-## 4. Thuyết trình (Demo) và bài học nhóm — 5 điểm
+1. Đúng tài liệu chưa đủ; chunk trong top-3 phải thực sự chứa các `answer_terms` cần thiết.
+2. Heading/section là ranh giới ngữ nghĩa tự nhiên cho văn bản quy định và giúp giữ tên trường, tên mục trong từng chunk.
+3. Metadata pre-filtering là lớp bảo vệ quan trọng khi corpus có tài liệu cùng chủ đề nhưng khác đối tượng áp dụng.
+4. Muốn so sánh chunking công bằng phải giữ nguyên corpus, 5 câu hỏi, embedding backend, `top_k` và quy tắc chấm. Việc các báo cáo cá nhân dùng backend hoặc phiên bản câu hỏi khác nhau là hạn chế của lần thử nghiệm này.
 
-### Kịch bản demo
-
-1. Giới thiệu 10 tài liệu, năm trường và metadata.
-2. Chạy `pytest tests -q` để xác nhận pipeline lõi.
-3. Chạy benchmark semantic bằng lệnh ở mục 2.
-4. Chiếu bảng điểm 4/10 → 7/10 → 8/10 → 10/10.
-5. Mở Q1 để minh họa fixed-size mất heading còn heading/section giữ đúng ngữ cảnh.
-6. Mở Q2 trước/sau `audience=student` để minh họa metadata filtering.
-7. Kết thúc bằng failure analysis và giới hạn dữ liệu.
-
-### Ba insight chính
-
-1. Với nhiều trường cùng dùng từ “đăng ký”, “rút học phần”, “phúc khảo”, tên trường và heading là tín hiệu retrieval quan trọng.
-2. Chunk nhỏ hơn không tự động tốt hơn; chunk phải giữ được đơn vị quy định hoàn chỉnh.
-3. Metadata filtering cần thực hiện trước similarity search để tài liệu dành cho staff không chiếm top-k của câu hỏi sinh viên.
-
-### Bài học và cải tiến
-
-Nếu làm lại, nhóm sẽ tìm bản PDF sạch hơn thay cho trang TVU có dấu hiệu bị chèn liên kết, bổ sung trường `effective_date` tách khỏi `document_version`, và đánh giá thêm embedding khác. Agent hiện là extractive để tái lập không cần API; phiên bản triển khai thực tế nên dùng LLM có kiểm soát cùng trích dẫn nguồn và kiểm tra câu trả lời với gold answer.
-
----
+Nếu làm lại, nhóm sẽ chuẩn hóa một script benchmark duy nhất cho cả bốn thành viên, bổ sung `effective_date` và `status=active`, dùng sentence overlap cho các điều khoản liền nhau và thử hybrid retrieval để bắt tốt cả ngữ nghĩa lẫn số liệu.
 
 ## Tự đánh giá
 
 | Tiêu chí | Điểm tự đánh giá |
 |---|---:|
-| Chất lượng bộ tài liệu | 10 / 10 |
-| Thiết kế chiến lược | 15 / 15 |
-| Chất lượng truy xuất | 10 / 10 |
-| Chuẩn bị demo | 5 / 5 |
-| **Tổng phần nhóm** | **40 / 40** |
-
-> Trước khi nộp: điền tên nhóm, họ tên và mã sinh viên; kiểm tra lại nguồn TVU; cập nhật phần tự đánh giá nếu kết quả demo thực tế khác dự kiến.
+| Lựa chọn tài liệu | 10/10 |
+| Thiết kế chiến lược | 15/15 |
+| Chất lượng truy xuất | 10/10 |
+| Thuyết trình | 5/5 |
+| **Tổng** | **40/40** |

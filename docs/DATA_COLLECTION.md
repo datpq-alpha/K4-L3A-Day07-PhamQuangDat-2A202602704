@@ -90,6 +90,14 @@ course-registration-deadline,data/dang-ky-hoc-phan/hoc-phan.md,Hạn đăng ký 
 
 ## 6. Checklist trước benchmark
 
+Chạy trình kiểm tra từ thư mục gốc của repo (không cần sửa placeholder hay escape lệnh nhiều dòng):
+
+```powershell
+python -X utf8 scripts/validate_corpus.py data/academic_regulations
+```
+
+Lệnh phải kết thúc bằng `KẾT QUẢ: TẤT CẢ ĐỀU OK`. Script kiểm tra số file, metadata bắt buộc, `doc_id` trùng tên file, `sources.csv` khớp 1-1 và số loại `audience`.
+
 - [ ] Có 5–10 file cùng một chủ đề, `doc_id` không trùng.
 - [ ] Mỗi file có đủ metadata bắt buộc (`doc_id`, `title`, `source_url`, `retrieved_at`, `document_version`, `audience`); `sources.csv` khớp một-một với file.
 - [ ] `audience` có ít nhất 2 giá trị khác nhau trong bộ tài liệu — nếu chỉ một giá trị thì `metadata_filter` không có gì để lọc.
